@@ -1,0 +1,14 @@
+<mapping lookup-entity="TestMappingEntity" lookup-prefix="lookup" target-prefix="target">
+    <field name="DateValue" mandatory="true">
+        <validate type="date" nullable="false" severity="warn"/>
+        <column name="date" />
+    </field>
+    <field name="DecimalValue">
+        <validate type="decimal" precision="9" scale="2" nullable="true" />
+        <column name="decimal" />
+    </field>
+    <field name="StringValue" mandatory="true">
+        <validate type="database" entity="TestEntity" field="testValue" nullable="false" severity="error" lookup-field="mockLookup"/>
+        <column name="Test" />
+    </field>
+</mapping>
