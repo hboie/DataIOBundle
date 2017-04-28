@@ -14,6 +14,8 @@
   "require": {
     "php": ">=5.3.2",
     "symfony/framework-bundle": "~2.6|~3.0",
+    "phpoffice/phpexcel": ">=1.8.1",
+    "liuggio/ExcelBundle": ">=2.0.4"
   },
   "autoload": {
     "psr-4": {
