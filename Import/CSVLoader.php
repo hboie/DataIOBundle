@@ -29,11 +29,7 @@ class CSVLoader
      */
     private $currentRow;
 
-    /**
-     * CSVLoader constructor.
-     * @param string $filename
-     */
-    public function __construct($filename)
+    public function openFile($filename, $delimiter = ';', $enclosure = '"', $escape = '"')
     {
         if (( $this->fileHandle = fopen($filename, "r")) !== FALSE) {
 
@@ -43,7 +39,7 @@ class CSVLoader
 
             $this->rows = array();
             $count = 0;
-            while (($colValues = fgetcsv($this->fileHandle, null, ";")) !== FALSE) {
+            while (($colValues = fgetcsv($this->fileHandle, null, $delimiter, $enclosure, $escape)) !== FALSE) {
                 if ( $count == 0 ) {
                     foreach ( $colValues as $value ) {
                         array_push($this->colNames, strtolower($value));

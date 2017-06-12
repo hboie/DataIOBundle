@@ -17,7 +17,8 @@ class CSVLoaderTest extends KernelTestCase
      */
     public function testLoader()
     {
-        $csvLoader = new CSVLoader(__DIR__.'/../Import/test1.csv');
+        $csvLoader = new CSVLoader();
+        $csvLoader->openFile(__DIR__.'/../Import/test1.csv');
 
         $this->assertEquals($csvLoader->getHighestRow(), 5);
         $this->assertEquals($csvLoader->getHighestColumn(), 4);
