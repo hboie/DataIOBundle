@@ -29,6 +29,23 @@ class CSVLoader
      */
     private $currentRow;
 
+    /**
+     * @var bool
+     */
+    private $rowValid;
+
+    public function __construct()
+    {
+        $this->rowValid = false;
+    }
+
+    /**
+     * @param string $filename
+     * @param string $delimiter
+     * @param string $enclosure
+     * @param string $escape
+     */
+
     public function openFile($filename, $delimiter = ';', $enclosure = '"', $escape = '"')
     {
         if (( $this->fileHandle = fopen($filename, "r")) !== FALSE) {
@@ -51,7 +68,10 @@ class CSVLoader
                 $count++;
             }
 
-            $this->getCurrentRow();
+            if ( $count > 1 ) {
+                $this->rowValid = true;
+                $this->getCurrentRow();
+            }
         } else {
             $this->fileHandle = null;
         }
@@ -109,6 +129,14 @@ class CSVLoader
     /**
      * @return bool
      */
+    public function valid()
+    {
+        return $this->rowValid;
+    }
+
+    /**
+     * @return bool
+     */
     public function next()
     {
         if ( $this->rowNb < count( $this->rows)-1 ) {
@@ -118,6 +146,8 @@ class CSVLoader
 
             return true;
         } else {
+            $this->rowValid = false;
+
             return false;
         }
     }
