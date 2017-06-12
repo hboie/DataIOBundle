@@ -12,11 +12,6 @@ class ExcelSheetLoader
     private $phpExcelSheet;
 
     /**
-     * @var \PHPExcel_Worksheet_ColumnIterator
-     */
-    private $colIterator;
-
-    /**
      * @var \PHPExcel_Worksheet_RowIterator
      */
     private $rowIterator;
@@ -119,7 +114,6 @@ class ExcelSheetLoader
 
     /**
      * @return array
-     * @throws \PHPExcel_Exception
      */
     public function getRow()
     {
