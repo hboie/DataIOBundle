@@ -10,6 +10,10 @@
             <argument type="service" id="phpexcel" />
         </service>
 
+        <service id="dataio.csv_loader"
+                 class="Hboie\DataIOBundle\Import\CSVLoader">
+        </service>
+
         <service id="dataio.excel_creator"
                  class="Hboie\DataIOBundle\Export\ExcelFileCreator">
             <argument type="service" id="phpexcel" />
