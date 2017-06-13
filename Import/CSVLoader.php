@@ -34,8 +34,24 @@ class CSVLoader
      */
     private $rowValid;
 
-    public function __construct()
+    /**
+     * @var string
+     */
+    private $fromEncoding;
+
+    /**
+     * @var string
+     */
+    private $toEncoding;
+
+    /**
+     * CSVLoader constructor.
+     * @param string $encoding
+     */
+    public function __construct($encoding = 'UTF-8')
     {
+        $this->toEncoding = $encoding;
+
         $this->rowValid = false;
     }
 
@@ -46,8 +62,10 @@ class CSVLoader
      * @param string $escape
      */
 
-    public function openFile($filename, $delimiter = ';', $enclosure = '"', $escape = '"')
+    public function openFile($filename, $delimiter = ';', $enclosure = '"', $escape = '"', $encoding = 'ISO-8859-1')
     {
+        $this->fromEncoding = $encoding;
+
         if (( $this->fileHandle = fopen($filename, "r")) !== FALSE) {
 
             $this->rowNb = 0;
@@ -62,6 +80,9 @@ class CSVLoader
                         array_push($this->colNames, strtolower($value));
                     }
                 } else {
+                    $colValues = array_map( function($rawString) {
+                        return mb_convert_encoding($rawString, $this->toEncoding, $this->fromEncoding);
+                    }, $colValues);
                     array_push($this->rows, $colValues);
                 }
 

@@ -70,10 +70,12 @@ class CSVLoaderTest extends KernelTestCase
         $this->assertTrue( $csvLoader->valid() );
         $row = $csvLoader->getRow();
         $this->assertTrue( isset($row[strtolower('Wert3')]) );
+
+        $string_utf8 = mb_convert_encoding("Das ist ein fünfter Test", 'UTF-8');
         if ( isset($row[strtolower('Wert3')]) ) {
-            $this->assertEquals($row[strtolower('Wert3')], "Das ist ein fünfter Test");
+            $this->assertEquals($row[strtolower('Wert3')], $string_utf8);
         }
-        $this->assertEquals($csvLoader->getCell('Wert3'), "Das ist ein fünfter Test");
+        $this->assertEquals($csvLoader->getCell('Wert3'), $string_utf8);
 
         $this->assertTrue( isset($row[strtolower('Wert4')]) );
         if ( isset($row[strtolower('Wert4')]) ) {
