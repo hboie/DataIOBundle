@@ -48,7 +48,7 @@ class CSVLoader
      * CSVLoader constructor.
      * @param string $encoding
      */
-    public function __construct($encoding = 'ISO-8859-1')
+    public function __construct($encoding = 'UTF-8')
     {
         $this->toEncoding = $encoding;
 
