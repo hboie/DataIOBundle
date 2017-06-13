@@ -197,5 +197,13 @@ class CSVLoader
         return $this->currentRow[strtolower($cName)];
     }
 
+    /**
+     * @param string $toEncoding
+     */
+    public function setEncoding($toEncoding)
+    {
+        $this->toEncoding = $toEncoding;
+    }
+
 
 }
