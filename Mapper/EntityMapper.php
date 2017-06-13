@@ -176,4 +176,11 @@ class EntityMapper
         }
     }
 
+    /**
+     * @return array
+     */
+    public function getMap()
+    {
+        return $this->col_map;
+    }
 }

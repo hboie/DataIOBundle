@@ -26,6 +26,7 @@ class CSVLoaderTest extends KernelTestCase
         $this->assertTrue($csvLoader->isValidColName("Wert2"));
         $this->assertFalse($csvLoader->isValidColName("KeinWert"));
 
+        $this->assertTrue( $csvLoader->valid() );
         $row = $csvLoader->getRow();
         $this->assertTrue( isset($row[strtolower('Wert1')]) );
         if ( isset($row[strtolower('Wert1')]) ) {
@@ -38,6 +39,7 @@ class CSVLoaderTest extends KernelTestCase
         }
 
         $this->assertTrue( $csvLoader->next() );
+        $this->assertTrue( $csvLoader->valid() );
         $row = $csvLoader->getRow();
         $this->assertTrue( isset($row[strtolower('Wert3')]) );
         if ( isset($row[strtolower('Wert3')]) ) {
@@ -50,6 +52,7 @@ class CSVLoaderTest extends KernelTestCase
         }
 
         $this->assertTrue( $csvLoader->next() );
+        $this->assertTrue( $csvLoader->valid() );
         $row = $csvLoader->getRow();
         $this->assertTrue( isset($row[strtolower('Wert1')]) );
         if ( isset($row[strtolower('Wert1')]) ) {
@@ -62,7 +65,9 @@ class CSVLoaderTest extends KernelTestCase
         }
 
         $this->assertTrue( $csvLoader->next() );
+        $this->assertTrue( $csvLoader->valid() );
         $this->assertTrue( $csvLoader->next() );
+        $this->assertTrue( $csvLoader->valid() );
         $row = $csvLoader->getRow();
         $this->assertTrue( isset($row[strtolower('Wert3')]) );
         if ( isset($row[strtolower('Wert3')]) ) {
@@ -77,5 +82,6 @@ class CSVLoaderTest extends KernelTestCase
         $this->assertEquals($csvLoader->getCell('Wert4'), 0.3);
 
         $this->assertFalse( $csvLoader->next() );
+        $this->assertFalse( $csvLoader->valid() );
     }
 }
