@@ -89,7 +89,7 @@ class EntityMapper
         $var_name = $this->col_map[$key];
 
         try {
-            $this->accessor->setValue($this->object, $key, $value);
+            $this->accessor->setValue($this->object, $var_name, $value);
         } catch (\Exception $e) {
             return false;
         }
