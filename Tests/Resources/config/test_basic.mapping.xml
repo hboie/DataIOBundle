@@ -1,6 +1,7 @@
 <mapping>
     <field name="StringValue">
         <validate type="string" length="25" nullable="false" severity="info"/>
+        <default value="DefaultValue" />
         <column name="string" />
     </field>
     <field name="DateValue" mandatory="true">

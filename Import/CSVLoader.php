@@ -48,7 +48,7 @@ class CSVLoader
      * CSVLoader constructor.
      * @param string $encoding
      */
-    public function __construct($encoding = 'UTF-8')
+    public function __construct($encoding = 'ISO-8859-1')
     {
         $this->toEncoding = $encoding;
 
@@ -60,11 +60,12 @@ class CSVLoader
      * @param string $delimiter
      * @param string $enclosure
      * @param string $escape
+     * @param string $fromEncoding
      */
 
-    public function openFile($filename, $delimiter = ';', $enclosure = '"', $escape = '"', $encoding = 'ISO-8859-1')
+    public function openFile($filename, $delimiter = ';', $enclosure = '"', $escape = '"', $fromEncoding = 'ISO-8859-1')
     {
-        $this->fromEncoding = $encoding;
+        $this->fromEncoding = $fromEncoding;
 
         if (( $this->fileHandle = fopen($filename, "r")) !== FALSE) {
 

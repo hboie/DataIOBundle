@@ -25,6 +25,11 @@ class EntityMapper
     /**
      * @var array
      */
+    private $default_values;
+
+    /**
+     * @var array
+     */
     private $mandatory_fields;
 
     /**
@@ -36,6 +41,7 @@ class EntityMapper
     {
         $this->entity_manager = $entity_manager;
         $this->col_map = array();
+        $this->default_values = array();
         $this->mandatory_fields = array();
 
         $this->accessor = PropertyAccess::createPropertyAccessor();
@@ -67,6 +73,12 @@ class EntityMapper
                             $column_name = (string)$column_attrib['name'];
                             $this->col_map[strtolower($column_name)] = $field_name;
                         }
+                    } else if($child->getName() == 'default') {
+                        $column_attrib = $child->attributes();
+                        if(isset($column_attrib['value'])) {
+                            $default_value = (string)$column_attrib['value'];
+                            $this->default_values[$field_name] = $default_value;
+                        }
                     }
                 }
             }
@@ -97,6 +109,11 @@ class EntityMapper
         return true;
     }
 
+    /**
+     * @param $row
+     * @return bool
+     */
+
     public function insertValues($row)
     {
         $value_inserted = false;
@@ -107,6 +124,24 @@ class EntityMapper
         }
 
         return $value_inserted;
+    }
+
+    /**
+     * @return bool
+     */
+
+    public function insertDefaultValues()
+    {
+        $values_inserted = true;
+        foreach ( $this->default_values as $var_name => $value ) {
+            try {
+                $this->accessor->setValue($this->object, $var_name, $value);
+            } catch (\Exception $e) {
+                $values_inserted = false;
+            }
+        }
+
+        return $values_inserted;
     }
 
     public function flush()
@@ -182,5 +217,13 @@ class EntityMapper
     public function getMap()
     {
         return $this->col_map;
+    }
+
+    /**
+     * @return array
+     */
+    public  function getDefaultValues()
+    {
+        return $this->default_values;
     }
 }
