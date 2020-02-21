@@ -2,23 +2,24 @@
 
 namespace Hboie\DataIOBundle\Export;
 
-use Liuggio\ExcelBundle\LiuggioExcelBundle;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\ColumnIterator;
+use PhpOffice\PhpSpreadsheet\Worksheet\RowIterator;
 
 class ExcelSheetWriter
 {
     /**
-     * @var \PHPExcel_Worksheet
+     * @var Worksheet
      */
-    private $phpExcelSheet;
+    private $phpWorksheet;
 
     /**
-     * @var \PHPExcel_Worksheet_ColumnIterator
+     * @var ColumnIterator
      */
     private $colIterator;
 
     /**
-     * @var \PHPExcel_Worksheet_RowIterator
+     * @var RowIterator
      */
     private $rowIterator;
 
@@ -28,15 +29,15 @@ class ExcelSheetWriter
     private $colIndices;
 
     /**
-     * ExcelFileLoader constructor.
-     * @param \PHPExcel_Worksheet $phpExcelSheet
+     * ExcelSheetWriter constructor.
+     * @param $phpWorksheet
      */
-    public function __construct($phpExcelSheet)
+    public function __construct($phpWorksheet)
     {
-        $this->phpExcelSheet = $phpExcelSheet;
+        $this->phpWorksheet = $phpWorksheet;
 
-        $this->colIterator = $this->phpExcelSheet->getColumnIterator();
-        $this->rowIterator = $this->phpExcelSheet->getRowIterator();
+        $this->colIterator = $this->phpWorksheet->getColumnIterator();
+        $this->rowIterator = $this->phpWorksheet->getRowIterator();
     }
 
     /**
@@ -47,7 +48,7 @@ class ExcelSheetWriter
         $this->colIndices[$colName] = $this->colIterator->key();
         $this->colIterator->next();
 
-        $this->phpExcelSheet->setCellValue($this->colIndices[$colName] . $this->rowIterator->key(), $colName);
+        $this->phpWorksheet->setCellValue($this->colIndices[$colName] . $this->rowIterator->key(), $colName);
     }
     
     public function setRow($values)
@@ -57,16 +58,19 @@ class ExcelSheetWriter
         foreach ($values as $colName => $value) {
             if (isset($this->colIndices[$colName])) {
                 $colKey = $this->colIndices[$colName];
-                $this->phpExcelSheet->setCellValue($colKey . $this->rowIterator->key(), $value);
+                $this->phpWorksheet->setCellValue($colKey . $this->rowIterator->key(), $value);
             }
         }
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
     public function closeSheet()
     {
         foreach ($this->colIndices as $ind) {
-            $this->phpExcelSheet->getColumnDimension($ind)->setAutoSize(true);
-            $this->phpExcelSheet->getStyle($ind . '1')->getFont()->setBold(true);
+            $this->phpWorksheet->getColumnDimension($ind)->setAutoSize(true);
+            $this->phpWorksheet->getStyle($ind . '1')->getFont()->setBold(true);
         }
     }
 }

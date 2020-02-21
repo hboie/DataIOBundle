@@ -2,7 +2,7 @@
 
 namespace Hboie\DataIOBundle\Mapper;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class EntityMapper

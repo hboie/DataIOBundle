@@ -17,8 +17,14 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('hboie_data_io');
+        if (! method_exists('Symfony\Component\Config\Definition\Builder\TreeBuilder', 'getRootNode')) {
+            // This is the pre 4.2 way
+            $treeBuilder = new TreeBuilder('hboie_data_io');
+            $rootNode = $treeBuilder->root('hboie_data_io');
+        } else {
+            $treeBuilder = new TreeBuilder('hboie_data_io');
+            $rootNode = $treeBuilder->getRootNode();
+        }
 
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for

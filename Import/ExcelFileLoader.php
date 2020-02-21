@@ -2,44 +2,47 @@
 
 namespace Hboie\DataIOBundle\Import;
 
-use Liuggio\ExcelBundle\LiuggioExcelBundle;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Iterator;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Yectep\PhpSpreadsheetBundle\Factory;
 use Hboie\DataIOBundle\Import\ExcelSheetLoader;
 
 class ExcelFileLoader implements \Iterator
 {
     /**
-     * @var \Liuggio\ExcelBundle\Factory
+     * @var Factory
      */
-    private $phpExcelFactory;
+    private $phpSpreadsheetFactory;
 
     /**
-     * @var \PHPExcel
+     * @var Spreadsheet
      */
-    private $phpExcelObj;
+    private $phpSpreadsheet;
     
     /**
-     * @var \PHPExcel_WorksheetIterator
+     * @var Iterator
      */
-    private $phpExcelWorksheetIterator;
+    private $phpSpreadsheetWorksheetIterator;
     
     /**
      * ExcelFileLoader constructor.
-     * @param \Liuggio\ExcelBundle\Factory $phpExcelFactory
+     * @param Factory $phpSpreadsheetFactory
      */
-    public function __construct($phpExcelFactory)
+    public function __construct($phpSpreadsheetFactory)
     {
-        $this->phpExcelFactory = $phpExcelFactory;
+        $this->phpSpreadsheetFactory = $phpSpreadsheetFactory;
         $this->currentSheetIndex = -1;
     }
 
     /**
-     * open Excel file
-     * @param string $filename
+     * @param $filename
+     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
     public function openFile($filename)
     {
-        $this->phpExcelObj = $this->phpExcelFactory->createPHPExcelObject($filename);
-        $this->phpExcelWorksheetIterator = $this->phpExcelObj->getWorksheetIterator();
+        $this->phpSpreadsheet = $this->phpSpreadsheetFactory->createSpreadsheet($filename);
+        $this->phpSpreadsheetWorksheetIterator = $this->phpSpreadsheet->getWorksheetIterator();
     }
 
     /**
@@ -47,7 +50,7 @@ class ExcelFileLoader implements \Iterator
      */
     public function closeFile()
     {
-        $this->phpExcelObj->disconnectWorksheets();
+        $this->phpSpreadsheet->disconnectWorksheets();
     }
 
     /**
@@ -55,29 +58,30 @@ class ExcelFileLoader implements \Iterator
      */
     public function getNbOfSheets()
     {
-        return $this->phpExcelObj->getSheetCount();
+        return $this->phpSpreadsheet->getSheetCount();
     }
 
     /**
-     * @return \PHPExcel_Worksheet
+     * @return Worksheet
      */
     public function getCurrentWorksheet()
     {
-        return $this->phpExcelWorksheetIterator->current();
+        return $this->phpSpreadsheetWorksheetIterator->current();
     }
 
     /**
-     * @return ExcelSheetLoader
+     * @return \Hboie\DataIOBundle\Import\ExcelSheetLoader
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function getCurrentExcelSheetLoader()
     {
-        $ret = new ExcelSheetLoader($this->phpExcelWorksheetIterator->current());
+        $ret = new ExcelSheetLoader($this->phpSpreadsheetWorksheetIterator->current());
         return $ret;
     }
     
     public function next()
     {
-        $this->phpExcelWorksheetIterator->next();
+        $this->phpSpreadsheetWorksheetIterator->next();
     }
 
     /**
@@ -85,7 +89,7 @@ class ExcelFileLoader implements \Iterator
      */
     public function key()
     {
-        return $this->phpExcelWorksheetIterator->key();
+        return $this->phpSpreadsheetWorksheetIterator->key();
     }
 
     /**
@@ -93,19 +97,19 @@ class ExcelFileLoader implements \Iterator
      */
     public function valid()
     {
-        return $this->phpExcelWorksheetIterator->valid();
+        return $this->phpSpreadsheetWorksheetIterator->valid();
     }
 
     public function rewind()
     {
-        $this->phpExcelWorksheetIterator->rewind();
+        $this->phpSpreadsheetWorksheetIterator->rewind();
     }
 
     /**
-     * @return \PHPExcel_Worksheet
+     * @return Worksheet
      */
     public function current()
     {
-        return $this->phpExcelWorksheetIterator->current();
+        return $this->phpSpreadsheetWorksheetIterator->current();
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "hboie/data-io-bundle",
-  "description": "Symfony 2 Bundle import data from excel- or csv-files",
+  "description": "Symfony Bundle import data from excel- or csv-files",
   "type": "symfony-bundle",
   "authors": [
     {
@@ -13,13 +13,20 @@
   "license": "MIT",
   "require": {
     "php": ">=5.3.2",
-    "symfony/framework-bundle": "~2.6|~3.0",
-    "phpoffice/phpexcel": ">=1.8.1",
-    "liuggio/ExcelBundle": ">=2.0.4"
+    "symfony/framework-bundle": "~5.0",
+    "yectep/phpspreadsheet-bundle": "^0.1.0",
+    "doctrine/orm": "^2.7",
+    "symfony/yaml": "^5.0",
+    "symfony/property-access": "^5.0",
+    "ext-SimpleXML": "*",
+    "symfony/validator": "^5.0"
   },
   "autoload": {
     "psr-4": {
       "Hboie\\DataIOBundle\\": ""
     }
+  },
+  "require-dev": {
+    "symfony/phpunit-bridge": "^5.0"
   }
 }

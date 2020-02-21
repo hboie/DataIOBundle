@@ -2,20 +2,23 @@
 
 namespace Hboie\DataIOBundle\Export;
 
-use Liuggio\ExcelBundle\LiuggioExcelBundle;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Yectep\PhpSpreadsheetBundle\Factory;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExcelFileCreator
 {
     /**
-     * @var \Liuggio\ExcelBundle\Factory
+     * @var Factory
      */
-    private $phpExcelFactory;
+    private $phpSpreadsheetFactory;
 
     /**
-     * @var \PHPExcel
+     * @var Spreadsheet
      */
-    private $phpExcelObj;
+    private $phpSpreadsheet;
 
     /**
      * @var string $phpExcelType
@@ -28,34 +31,37 @@ class ExcelFileCreator
     private $sheets;
 
     /**
-     * ExcelFileLoader constructor.
-     * @param \Liuggio\ExcelBundle\Factory $phpExcelFactory
+     * ExcelFileCreator constructor.
+     * @param $phpSpreadsheetFactory
+     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
-    public function __construct($phpExcelFactory)
+    public function __construct($phpSpreadsheetFactory)
     {
-        $this->phpExcelFactory = $phpExcelFactory;
+        $this->phpSpreadsheetFactory = $phpSpreadsheetFactory;
 
-        $this->phpExcelObj = $this->phpExcelFactory->createPHPExcelObject();
-        $this->phpExcelObj->getProperties()->setCreator("Conet");
+        $this->phpSpreadsheet = $this->phpSpreadsheetFactory->createSpreadsheet();
+        $this->phpSpreadsheet->getProperties()->setCreator("OneReporting");
         $this->phpExcelType = 'Excel2007';
 
         $this->sheets = array();
     }
+
     /**
-     * @param string $title
-     * @return \PHPExcel_Worksheet
+     * @param $title
+     * @return mixed
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function addSheet($title)
     {
         $nbOfSheets = count($this->sheets);
 
         if ($nbOfSheets > 0) {
-            $this->phpExcelObj->createSheet($nbOfSheets);
+            $this->phpSpreadsheet->createSheet($nbOfSheets);
         }
 
-        $this->phpExcelObj->setActiveSheetIndex($nbOfSheets);
+        $this->phpSpreadsheet->setActiveSheetIndex($nbOfSheets);
 
-        $activeSheet = $this->phpExcelObj->getActiveSheet();
+        $activeSheet = $this->phpSpreadsheet->getActiveSheet();
         $activeSheet->setTitle($title);
 
         $this->sheets[$nbOfSheets] = $activeSheet;
@@ -64,14 +70,19 @@ class ExcelFileCreator
     }
 
     /**
-     * @param string $filename
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @param $filename
+     * @return mixed
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function getStreamedResponse($filename)
     {
-        $writer = $this->phpExcelFactory->createWriter($this->phpExcelObj, $this->phpExcelType);
+        $writer = $this->phpSpreadsheetFactory->createWriter($this->phpSpreadsheet, $this->phpExcelType);
 
-        $response = $this->phpExcelFactory->createStreamedResponse($writer);
+        $response =  new StreamedResponse(
+            function () use ($writer) {
+                $writer->save('php://output');
+            }
+        );
 
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,

@@ -10,14 +10,20 @@
             <argument type="service" id="phpexcel" />
         </service>
 
+        <service id="Hboie\DataIOBundle\Import\ExcelFileLoader" alias="dataio.excel_loader" />
+
         <service id="dataio.csv_loader"
                  class="Hboie\DataIOBundle\Import\CSVLoader">
         </service>
+
+        <service id="Hboie\DataIOBundle\Import\CSVLoader" alias="dataio.csv_loader" />
 
         <service id="dataio.excel_creator"
                  class="Hboie\DataIOBundle\Export\ExcelFileCreator">
             <argument type="service" id="phpexcel" />
         </service>
+
+        <service id="Hboie\DataIOBundle\Export\ExcelFileCreator" alias="dataio.excel_creator" />
 
         <service id="dataio.database.lookup"
                  class="Hboie\DataIOBundle\Validation\DatabaseLookup">

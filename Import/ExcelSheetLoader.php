@@ -2,17 +2,19 @@
 
 namespace Hboie\DataIOBundle\Import;
 
-use Liuggio\ExcelBundle\LiuggioExcelBundle;
+use PhpOffice\PhpSpreadsheet\Worksheet\RowIterator;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
 
 class ExcelSheetLoader
 {
     /**
-     * @var \PHPExcel_Worksheet
+     * @var Worksheet
      */
-    private $phpExcelSheet;
+    private $phpWorksheet;
 
     /**
-     * @var \PHPExcel_Worksheet_RowIterator
+     * @var RowIterator
      */
     private $rowIterator;
 
@@ -22,23 +24,24 @@ class ExcelSheetLoader
     private $colNames;
 
     /**
-     * ExcelFileLoader constructor.
-     * @param \PHPExcel_Worksheet $phpExcelSheet
+     * ExcelSheetLoader constructor.
+     * @param $phpWorksheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public function __construct($phpExcelSheet)
+    public function __construct($phpWorksheet)
     {
-        $this->phpExcelSheet = $phpExcelSheet;
+        $this->phpWorksheet = $phpWorksheet;
 
         $this->colNames = array();
 
-        $this->rowIterator = $this->phpExcelSheet->getRowIterator();
+        $this->rowIterator = $this->phpWorksheet->getRowIterator();
         $row = $this->rowIterator->current();
 
         $cellIterator = $row->getCellIterator();
         $cellIterator->setIterateOnlyExistingCells(false);
 
         foreach($cellIterator as $cell) {
-            /** @var \PHPExcel_Cell $cell */
+            /** @var Cell $cell */
             $cInd = $cell->getColumn();
             if(!is_null($cell)) {
                 $cellCont = $cell->getValue();
@@ -56,7 +59,7 @@ class ExcelSheetLoader
      */
     public function getHighestRow()
     {
-        return $this->phpExcelSheet->getHighestRow();
+        return $this->phpWorksheet->getHighestRow();
     }
 
     /**
@@ -64,7 +67,7 @@ class ExcelSheetLoader
      */
     public function getHighestColumn()
     {
-        return $this->phpExcelSheet->getHighestColumn();
+        return $this->phpWorksheet->getHighestColumn();
     }
 
     /**
@@ -114,6 +117,7 @@ class ExcelSheetLoader
 
     /**
      * @return array
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function getRow()
     {
@@ -121,7 +125,7 @@ class ExcelSheetLoader
 
         foreach($this->colNames as $cInd => $cName) {
 
-            $celValue = $this->phpExcelSheet->getCell($cInd.$this->getCurrentRowIndex())->getFormattedValue();
+            $celValue = $this->phpWorksheet->getCell($cInd.$this->getCurrentRowIndex())->getFormattedValue();
             $ret[$cName] = $celValue;
         }
 
@@ -133,6 +137,6 @@ class ExcelSheetLoader
      */
     public function getTitle()
     {
-        return $this->phpExcelSheet->getTitle();
+        return $this->phpWorksheet->getTitle();
     }
 }
