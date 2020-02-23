@@ -80,7 +80,7 @@ class ValidationMapper
                         array_merge(['type' => DataValidator::STRING_VAL], $params) );
                     break;
                 case DataValidator::DATE_VAL:
-                    $params = $this->getParams($child, ['severity', 'nullable']);
+                    $params = $this->getParams($child, ['severity', 'nullable', 'dateformat']);
                     $this->dataValidator->addValidator($parName,
                         array_merge(['type' => DataValidator::DATE_VAL], $params) );
                     break;
