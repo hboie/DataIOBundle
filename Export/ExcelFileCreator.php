@@ -41,7 +41,7 @@ class ExcelFileCreator
 
         $this->phpSpreadsheet = $this->phpSpreadsheetFactory->createSpreadsheet();
         $this->phpSpreadsheet->getProperties()->setCreator("OneReporting");
-        $this->phpExcelType = 'Excel2007';
+        $this->phpExcelType = 'Xlsx';
 
         $this->sheets = array();
     }

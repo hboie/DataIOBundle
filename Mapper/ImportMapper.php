@@ -22,6 +22,11 @@ class ImportMapper
     private $format;
 
     /**
+     * @var array
+     */
+    private $date_format;
+
+    /**
      * @var mixed
      */
     private $object;
@@ -71,6 +76,16 @@ class ImportMapper
                 }
                 $this->map[$field_name] = $target;
                 $this->format[$field_name] = $format;
+
+                foreach ($field->children() as $child) {
+                    /** @var \SimpleXMLElement $child */
+                    if ($child->getName() == 'validate') {
+                        $child_attrib = $child->attributes();
+                        if (isset($child_attrib['dateformat'])) {
+                            $this->date_format[$field_name] = (string)$child_attrib['dateformat'];
+                        }
+                    }
+                }
             }
         }
     }
@@ -95,9 +110,25 @@ class ImportMapper
             $value = $source->$getter_method();
             $target_value = $value;
             if($this->format[$source_key] == 'date') {
-                $target_value = new \DateTime($value);
+                // use given dateformats to import date
+                $target_value = null;
+
+                if ( isset($this->date_format[$source_key]) ) {
+                    foreach ( explode('|',$this->date_format[$source_key]) as $dateFormat ) {
+                        $d = \DateTime::createFromFormat($dateFormat, $value);
+                        if ( $d != null ) {
+                            if ( $d->format( $dateFormat ) === $value ) {
+                                $target_value = new \DateTime( $d->format('Y-m-d') );
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            $this->object->$setter_method($target_value);
+
+            if ( $target_value != null ) {
+                $this->object->$setter_method($target_value);
+            }
         }
         return true;
     }

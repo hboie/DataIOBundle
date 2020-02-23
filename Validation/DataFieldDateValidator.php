@@ -11,12 +11,25 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class DataFieldDateValidator extends DataFieldValidator
 {
     /**
+     * @var array $validDateFormats
+     */
+    protected $dateFormatsArray;
+
+    /**
      * DataFieldDateValidator constructor.
      * @param ValidatorInterface $frameworkValidator
      * @param array $params
      */
     public function __construct(ValidatorInterface $frameworkValidator, array $params)
     {
+        if(isset($params['dateformat'])) {
+            $formatsString = $params['dateformat'];
+            $this->dateFormatsArray = explode('|', $formatsString);
+        } else {
+            $this->dateFormatsArray = array();
+            array_push($this->dateFormatsArray, 'd-m-Y');
+        }
+
         parent::__construct($frameworkValidator, $params);
     }
 
@@ -29,17 +42,26 @@ class DataFieldDateValidator extends DataFieldValidator
     {
         $valRes = new ValidationResult($this->severity);
         $valRes->setValid();
-        
+
         if (!$this->nullable) {
             $blankConstraint = new Assert\NotBlank();
             $valRes->convertValidationResult($this->frameworkValidator->validate($value, $blankConstraint));
         }
 
         if ($valRes->isValid() && $value != '' ) {
-            $date_constraint = new Assert\Date();
-            $valRes->convertValidationResult($this->frameworkValidator->validate($value, $date_constraint));
+            $isValidDate = false;
+            foreach ( $this->dateFormatsArray as $dateFormat ) {
+                // check if value is valid
+                $d = \DateTime::createFromFormat($dateFormat, $value);
+                if ( $d && $d->format( $dateFormat ) === $value ) {
+                    $isValidDate = true;
+                }
+            }
+            if ( ! $isValidDate ) {
+                $valRes->setNotValid('key "' . $key . '" not valid - no valid time format "' . implode(', ', $this->dateFormatsArray) . '"');
+            }
         }
-        
+
         return $valRes;
     }
 

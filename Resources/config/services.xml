@@ -7,7 +7,7 @@
     <services>
         <service id="dataio.excel_loader"
                  class="Hboie\DataIOBundle\Import\ExcelFileLoader">
-            <argument type="service" id="phpexcel" />
+            <argument type="service" id="phpoffice.spreadsheet" />
         </service>
 
         <service id="Hboie\DataIOBundle\Import\ExcelFileLoader" alias="dataio.excel_loader" />
@@ -20,7 +20,7 @@
 
         <service id="dataio.excel_creator"
                  class="Hboie\DataIOBundle\Export\ExcelFileCreator">
-            <argument type="service" id="phpexcel" />
+            <argument type="service" id="phpoffice.spreadsheet" />
         </service>
 
         <service id="Hboie\DataIOBundle\Export\ExcelFileCreator" alias="dataio.excel_creator" />
@@ -41,6 +41,5 @@
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="dataio.database.lookup" />
         </service>
-
     </services>
 </container>

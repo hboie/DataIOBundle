@@ -103,7 +103,7 @@ class DataFieldDatabaseValidator extends DataFieldValidator
                 } catch (Exception $e) {
                     if ( $e instanceof MappingException ) {
                         // try to find entity in AppBundle
-                        $repository = $this->entityManager->getRepository('AppBundle:' . $this->entity);
+                        $repository = $this->entityManager->getRepository('App:' . $this->entity);
                     } else {
                         throw $e;
                     }
@@ -179,7 +179,7 @@ class DataFieldDatabaseValidator extends DataFieldValidator
             } catch (Exception $e) {
                 if ( $e instanceof MappingException ) {
                     // try to find entity in AppBundle
-                    $repository = $this->entityManager->getRepository('AppBundle:' . $this->entity);
+                    $repository = $this->entityManager->getRepository('App:' . $this->entity);
                 } else {
                     throw $e;
                 }

@@ -173,7 +173,7 @@ class DatabaseLookup
         } catch (Exception $e) {
             if ($e instanceof MappingException) {
                 // try to find entity in AppBundle
-                $this->lookupRepository = $this->entityManager->getRepository('AppBundle:' . $lookupEntityStr);
+                $this->lookupRepository = $this->entityManager->getRepository('App:' . $lookupEntityStr);
             } else {
                 throw $e;
             }
