@@ -13,6 +13,7 @@ class ValidationResult
     const ERROR = "ERROR";
     const WARNING = "WARNING";
     const INFO = "INFO";
+    const DROP_DATASET = "DROP_DATASET";
 
     const PENDING = "PENDING";
 

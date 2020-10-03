@@ -2,6 +2,7 @@
 
 namespace Hboie\DataIOBundle\Validation;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Hboie\DataIOBundle\Validation\DataFieldValidator;
 use Hboie\DataIOBundle\Validation\DataFieldStringValidator;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -16,7 +17,7 @@ class DataFieldValidatorFactory
     private $frameworkValidator;
 
     /**
-     * @var ObjectManager $entityManager
+     * @var EntityManagerInterface $entityManager
      */
     private $entityManager;
 
@@ -31,7 +32,9 @@ class DataFieldValidatorFactory
      * @param ObjectManager $entityManager
      * @param DatabaseLookup $databaseLookup
      */
-    public function __construct($frameworkValidator, $entityManager, $databaseLookup)
+    public function __construct(ValidatorInterface $frameworkValidator,
+                                EntityManagerInterface $entityManager,
+                                DatabaseLookup $databaseLookup)
     {
         $this->frameworkValidator = $frameworkValidator;
         $this->entityManager = $entityManager;
