@@ -19,6 +19,8 @@ class DataValidator
     
     const PENDING = ValidationResult::PENDING;
 
+    const DROP_DATASET = ValidationResult::DROP_DATASET;
+
     const DATE_VAL = "date";
     const STRING_VAL = "string";
     const DECIMAL_VAL = "decimal";

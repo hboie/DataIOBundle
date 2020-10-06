@@ -13,6 +13,7 @@ abstract class DataFieldValidator
     const ERROR = ValidationResult::ERROR;
     const WARNING = ValidationResult::WARNING;
     const INFO = ValidationResult::INFO;
+    const DROP_DATASET = ValidationResult::DROP_DATASET;
     
     const PENDING = ValidationResult::PENDING;
 
@@ -68,6 +69,9 @@ abstract class DataFieldValidator
             } else if (strtolower($params['severity']) == 'error'
                 || strtolower($params['severity']) == 'err') {
                 $this->severity = DataFieldValidator::ERROR;
+            } else if (strtolower($params['severity']) == 'drop_dataset'
+                || strtolower($params['severity']) == 'drop') {
+                $this->severity = DataFieldValidator::DROP_DATASET;
             } else {
                 $this->severity = $params['severity'];
             }

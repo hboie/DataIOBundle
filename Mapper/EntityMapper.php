@@ -67,17 +67,19 @@ class EntityMapper
 
                 foreach($field->children() as $child) {
                     /** @var \SimpleXMLElement $child */
-                    if($child->getName() == 'column') {
+                    $childName = $child->getName();
+
+                    if($childName == 'column') {
                         $columnAttrib = $child->attributes();
                         if(isset($columnAttrib['name'])) {
                             $columnName = (string)$columnAttrib['name'];
                             $this->colMap[strtolower($columnName)] = $fieldName;
                         }
-                    } else if($child->getName() == 'default') {
+                    } else if($childName == 'default') {
                         $columnAttrib = $child->attributes();
-                        if(isset($column_attrib['value'])) {
+                        if(isset($columnAttrib['value'])) {
                             $defaultValue = (string)$columnAttrib['value'];
-                            $this->defaultValues[$field_name] = $defaultValue;
+                            $this->defaultValues[$fieldName] = $defaultValue;
                         }
                     }
                 }
