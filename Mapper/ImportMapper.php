@@ -170,14 +170,40 @@ class ImportMapper
     }
 
     /**
-     * @param QueryBuilder $queryBuilder
+     * @param ServiceEntityRepository $repository
+     * @param object $uploadLine
+     * @return null|object
      */
-    public function getKeyEntry(ServiceEntityRepository $repository, object $uploadLine)
+    public function findOneKeyEntry(ServiceEntityRepository $repository, object $uploadLine)
     {
-        if ( count( $this->keyFields ) <= 0 ) {
-            return null;
+        if ( count( $this->keyFields ) > 0 ) {
+            $selection = $this->getKeyEntrySelection($uploadLine);
+
+            if ( count( $selection ) > 0 )
+            {
+                return $repository->findOneBy( $selection );
+            }
         }
 
+        return null;
+    }
+
+    public function findKeyEntries(ServiceEntityRepository $repository, object $uploadLine)
+    {
+        if ( count( $this->keyFields ) > 0 ) {
+            $selection = $this->getKeyEntrySelection($uploadLine);
+
+            if ( count( $selection ) > 0 )
+            {
+                return $repository->findBy( $selection );
+            }
+        }
+
+        return null;
+    }
+
+    private function getKeyEntrySelection(object $uploadLine)
+    {
         $selection = array();
 
         foreach ( $this->keyFields as $keyField ) {
@@ -199,6 +225,6 @@ class ImportMapper
             }
         }
 
-        return $repository->findOneBy( $selection );
+        return $selection;
     }
 }
