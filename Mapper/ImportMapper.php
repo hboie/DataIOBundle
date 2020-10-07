@@ -2,7 +2,10 @@
 
 namespace Hboie\DataIOBundle\Mapper;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class ImportMapper
 {
@@ -27,15 +30,28 @@ class ImportMapper
     private $dateFormat;
 
     /**
+     * @var array
+     */
+    private $keyFields;
+
+    /**
      * @var mixed
      */
     private $object;
+
+    /**
+     * @var PropertyAccess $accessor
+     */
+    protected $accessor;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
         $this->map = array();
         $this->format = array();
+        $this->keyFields = array();
+
+        $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
     /**
@@ -68,6 +84,12 @@ class ImportMapper
             $format = "";
             if (isset($fieldAttrib['format'])) {
                 $format = (string)$fieldAttrib['format'];
+            }
+
+            if (isset($fieldAttrib['key'])) {
+                if ( $fieldAttrib['key'] == "true" ) {
+                    array_push($this->keyFields, $fieldName);
+                }
             }
 
             if (!$notarget && $fieldName != "") {
@@ -147,4 +169,36 @@ class ImportMapper
         $this->object = $object;
     }
 
+    /**
+     * @param QueryBuilder $queryBuilder
+     */
+    public function getKeyEntry(ServiceEntityRepository $repository, object $uploadLine)
+    {
+        if ( count( $this->keyFields ) <= 0 ) {
+            return null;
+        }
+
+        $selection = array();
+
+        foreach ( $this->keyFields as $keyField ) {
+            $targetField = "";
+            $targetValue = "";
+
+            // find target field
+            if ( isset( $this->map[$keyField] ) ) {
+                $targetField = $this->map[$keyField];
+            }
+
+            // load value from uploaded data
+            try {
+                $targetValue = $this->accessor->getValue($uploadLine, $keyField);
+            } catch (\Exception $e) {}
+
+            if ( $targetField != "" && $targetValue != "" ) {
+                $selection[lcfirst($targetField)] = $targetValue;
+            }
+        }
+
+        return $repository->findOneBy( $selection );
+    }
 }
