@@ -30,6 +30,11 @@ class EntityMapper
     /**
      * @var array
      */
+    private $factors;
+
+    /**
+     * @var array
+     */
     private $mandatoryFields;
 
     /**
@@ -43,6 +48,7 @@ class EntityMapper
         $this->colMap = array();
         $this->defaultValues = array();
         $this->mandatoryFields = array();
+        $this->factors = array();
 
         $this->accessor = PropertyAccess::createPropertyAccessor();
     }
@@ -81,6 +87,14 @@ class EntityMapper
                             $defaultValue = (string)$columnAttrib['value'];
                             $this->defaultValues[$fieldName] = $defaultValue;
                         }
+                    } else if($childName == 'factor') {
+                        $columnAttrib = $child->attributes();
+                        if(isset($columnAttrib['value'])) {
+                            $factorValue = (string)$columnAttrib['value'];
+                            try {
+                                $this->factors[$fieldName] = floatval($factorValue);
+                            } catch (\Exception $e) {}
+                        }
                     }
                 }
             }
@@ -101,6 +115,12 @@ class EntityMapper
         }
 
         $varName = $this->colMap[$key];
+
+        if ( isset($this->factors[$varName]) ) {
+            try {
+                $value = floatval($value) * $this->factors[$varName];
+            } catch (\Exception $e) {}
+        }
 
         try {
             $this->accessor->setValue($this->object, $varName, $value);
