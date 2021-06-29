@@ -12,14 +12,14 @@
   "homepage": "https://github.com/hboie/DataIOBundle",
   "license": "MIT",
   "require": {
-    "php": ">=5.4",
-    "symfony/framework-bundle": "~5.0",
+    "php": "^7.2.5",
+    "symfony/framework-bundle": "~5.3",
     "yectep/phpspreadsheet-bundle": "^0.1.0",
     "doctrine/orm": "^2.7",
-    "symfony/yaml": "^5.0",
-    "symfony/property-access": "^5.0",
+    "symfony/yaml": "^5.3",
+    "symfony/property-access": "^5.3",
     "ext-SimpleXML": "*",
-    "symfony/validator": "^5.0"
+    "symfony/validator": "^5.3"
   },
   "autoload": {
     "psr-4": {
@@ -27,6 +27,6 @@
     }
   },
   "require-dev": {
-    "symfony/phpunit-bridge": "^5.0"
+    "symfony/phpunit-bridge": "^5.3"
   }
 }

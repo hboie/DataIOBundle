@@ -2,7 +2,7 @@
 
 namespace Hboie\DataIOBundle\Mapper;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class ImportMapper
 {
