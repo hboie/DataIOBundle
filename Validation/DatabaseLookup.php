@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Hboie\DataIOBundle\Validation\DataValidator;
 use Exception;
-use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\Persistence\Mapping\MappingException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class DatabaseLookup

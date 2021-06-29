@@ -3,12 +3,12 @@
 namespace Hboie\DataIOBundle\Validation;
 
 use Hboie\DataIOBundle\Validation\DataFieldValidator;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Hboie\DataIOBundle\Validation\ValidationResult;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Exception;
-use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\Persistence\Mapping\MappingException;
 use Hboie\DataIOBundle\Validation\DatabaseLookup;
 
 class DataFieldDatabaseValidator extends DataFieldValidator
@@ -73,7 +73,7 @@ class DataFieldDatabaseValidator extends DataFieldValidator
 
     /**
      * @param string $key
-     * @param object $object
+     * @param mixed object $object
      * @return ValidationResult
      * @throws Exception
      */

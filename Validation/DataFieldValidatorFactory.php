@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Hboie\DataIOBundle\Validation\DataFieldValidator;
 use Hboie\DataIOBundle\Validation\DataFieldStringValidator;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Hboie\DataIOBundle\Validation\DatabaseLookup;
 
 class DataFieldValidatorFactory

@@ -17,7 +17,7 @@ class DataValidator2Test extends KernelTestCase
      */
     protected $dataValidator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         self::bootKernel();
 

@@ -13,14 +13,14 @@ use Doctrine\ORM\Query;
 use Hboie\DataIOBundle\Tests\Entity\TestMappingEntity;
 
 
-class DatabaseLookupTest extends \PHPUnit_Framework_TestCase
+class DatabaseLookupTest extends KernelTestCase
 {
     /**
      * @var ObjectManager
      */
     protected $entityManager;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         // mock EntityManager
         $this->entityManager = $this

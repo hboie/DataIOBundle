@@ -7,7 +7,7 @@ use Hboie\DataIOBundle\Import\CSVLoader;
 
 class CSVLoaderTest extends KernelTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         self::bootKernel();
     }

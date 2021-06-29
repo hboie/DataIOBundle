@@ -10,7 +10,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class EntityMapper1Test extends KernelTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         self::bootKernel();
     }

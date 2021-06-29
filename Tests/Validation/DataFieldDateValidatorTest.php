@@ -16,7 +16,7 @@ class DataFieldDateValidatorTest extends KernelTestCase
      */
     protected $validatorFactory;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         self::bootKernel();
 

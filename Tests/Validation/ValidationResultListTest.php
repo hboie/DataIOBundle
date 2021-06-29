@@ -4,8 +4,9 @@ namespace Hboie\DataIOBundle\Tests\Validation;
 
 use Hboie\DataIOBundle\Validation\ValidationResult;
 use Hboie\DataIOBundle\Validation\ValidationResultList;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ValidationResultListTest extends \PHPUnit_Framework_TestCase
+class ValidationResultListTest extends KernelTestCase
 {
     /**
      * @group dataio.validator

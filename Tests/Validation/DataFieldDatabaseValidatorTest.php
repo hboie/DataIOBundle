@@ -26,7 +26,7 @@ class DataFieldDatabaseValidatorTest extends KernelTestCase
      */
     protected $frameworkValidator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         self::bootKernel();
 
