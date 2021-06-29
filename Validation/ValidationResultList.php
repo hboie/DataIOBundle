@@ -53,7 +53,8 @@ class ValidationResultList extends ValidationResult
                 || ( $curJudge == ValidationResult::WARNING &&
                     ( $valResJudge == ValidationResult::ERROR || $valResJudge == ValidationResult::NOT_VALID ) )
                 || ( $curJudge == ValidationResult::NOT_VALID &&
-                    $valResJudge == ValidationResult::ERROR ) ) {
+                    $valResJudge == ValidationResult::ERROR )
+                || $valResJudge == ValidationResult::DROP_DATASET ) {
                 $this->setJudge($valResJudge);
             }
         }

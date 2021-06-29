@@ -1,6 +1,6 @@
 <?php
 
-namespace Hboie\DataIOBundle\Tests\Validation;
+namespace Hboie\DataIOBundle\Tests\Mapper;
 
 use Hboie\DataIOBundle\Mapper\EntityMapper;
 use Hboie\DataIOBundle\Mapper\ValidationMapper;

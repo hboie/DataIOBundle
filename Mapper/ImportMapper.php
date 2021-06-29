@@ -3,13 +3,17 @@
 namespace Hboie\DataIOBundle\Mapper;
 
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class ImportMapper
 {
     /**
-     * @var ObjectManager
+     * @var EntityManagerInterface
      */
-    private $entity_manager;
+    private $entityManager;
 
     /**
      * @var array
@@ -24,18 +28,31 @@ class ImportMapper
     /**
      * @var array
      */
-    private $date_format;
+    private $dateFormat;
+
+    /**
+     * @var array
+     */
+    private $keyFields;
 
     /**
      * @var mixed
      */
     private $object;
 
-    public function __construct(ObjectManager $entity_manager)
+    /**
+     * @var PropertyAccess $accessor
+     */
+    protected $accessor;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->entity_manager = $entity_manager;
+        $this->entityManager = $entityManager;
         $this->map = array();
         $this->format = array();
+        $this->keyFields = array();
+
+        $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
     /**
@@ -45,44 +62,50 @@ class ImportMapper
     {
         $xml = new \SimpleXmlElement(file_get_contents($filename));
         foreach ($xml->field as $field) {
-            $field_attrib = $field->attributes();
+            $fieldAttrib = $field->attributes();
 
             $notarget = false;
-            if (isset($field_attrib['notarget'])) {
-                $notarget = (string)$field_attrib['notarget'];
+            if (isset($fieldAttrib['notarget'])) {
+                $notarget = (string)$fieldAttrib['notarget'];
                 if (strtolower($notarget) == 'true') {
                     $notarget = true;
                 }
             }
 
-            $field_name = "";
-            if (isset($field_attrib['name'])) {
-                $field_name = (string)$field_attrib['name'];
+            $fieldName = "";
+            if (isset($fieldAttrib['name'])) {
+                $fieldName = (string)$fieldAttrib['name'];
             }
 
             $target = "";
-            if (isset($field_attrib['target'])) {
-                $target = (string)$field_attrib['target'];
+            if (isset($fieldAttrib['target'])) {
+                $target = (string)$fieldAttrib['target'];
             }
 
             $format = "";
-            if (isset($field_attrib['format'])) {
-                $format = (string)$field_attrib['format'];
+            if (isset($fieldAttrib['format'])) {
+                $format = (string)$fieldAttrib['format'];
             }
 
-            if (!$notarget && $field_name != "") {
-                if ($target == "") {
-                    $target = $field_name;
+            if (isset($fieldAttrib['key'])) {
+                if ( $fieldAttrib['key'] == "true" ) {
+                    array_push($this->keyFields, $fieldName);
                 }
-                $this->map[$field_name] = $target;
-                $this->format[$field_name] = $format;
+            }
+
+            if (!$notarget && $fieldName != "") {
+                if ($target == "") {
+                    $target = $fieldName;
+                }
+                $this->map[$fieldName] = $target;
+                $this->format[$fieldName] = $format;
 
                 foreach ($field->children() as $child) {
                     /** @var \SimpleXMLElement $child */
                     if ($child->getName() == 'validate') {
-                        $child_attrib = $child->attributes();
-                        if (isset($child_attrib['dateformat'])) {
-                            $this->date_format[$field_name] = (string)$child_attrib['dateformat'];
+                        $childAttrib = $child->attributes();
+                        if (isset($childAttrib['dateformat'])) {
+                            $this->dateFormat[$fieldName] = (string)$childAttrib['dateformat'];
                         }
                     }
                 }
@@ -96,10 +119,10 @@ class ImportMapper
      */
     public function insertValues($source)
     {
-        foreach ($this->map as $source_key => $target_key) {
-            $getter_method = 'get' . $source_key;
-            $setter_method = 'set' . $target_key;
-            if (!method_exists($source, $getter_method)) {
+        foreach ($this->map as $sourceKey => $targetKey) {
+            $getterMethod = 'get' . $sourceKey;
+            $setter_method = 'set' . $targetKey;
+            if (!method_exists($source, $getterMethod)) {
                 return false;
             }
 
@@ -107,18 +130,18 @@ class ImportMapper
                 return false;
             }
 
-            $value = $source->$getter_method();
-            $target_value = $value;
-            if($this->format[$source_key] == 'date') {
+            $value = $source->$getterMethod();
+            $targetValue = $value;
+            if($this->format[$sourceKey] == 'date') {
                 // use given dateformats to import date
-                $target_value = null;
+                $targetValue = null;
 
-                if ( isset($this->date_format[$source_key]) ) {
-                    foreach ( explode('|',$this->date_format[$source_key]) as $dateFormat ) {
+                if ( isset($this->dateFormat[$sourceKey]) ) {
+                    foreach ( explode('|',$this->dateFormat[$sourceKey]) as $dateFormat ) {
                         $d = \DateTime::createFromFormat($dateFormat, $value);
                         if ( $d != null ) {
                             if ( $d->format( $dateFormat ) === $value ) {
-                                $target_value = new \DateTime( $d->format('Y-m-d') );
+                                $targetValue = new \DateTime( $d->format('Y-m-d') );
                                 break;
                             }
                         }
@@ -126,8 +149,8 @@ class ImportMapper
                 }
             }
 
-            if ( $target_value != null ) {
-                $this->object->$setter_method($target_value);
+            if ( $targetValue != null ) {
+                $this->object->$setter_method($targetValue);
             }
         }
         return true;
@@ -135,8 +158,8 @@ class ImportMapper
 
     public function flush()
     {
-        $this->entity_manager->persist($this->object);
-        $this->entity_manager->flush();
+        $this->entityManager->persist($this->object);
+        $this->entityManager->flush();
     }
 
     /**
@@ -147,4 +170,62 @@ class ImportMapper
         $this->object = $object;
     }
 
+    /**
+     * @param ServiceEntityRepository $repository
+     * @param object $uploadLine
+     * @return null|object
+     */
+    public function findOneKeyEntry(ServiceEntityRepository $repository, object $uploadLine)
+    {
+        if ( count( $this->keyFields ) > 0 ) {
+            $selection = $this->getKeyEntrySelection($uploadLine);
+
+            if ( count( $selection ) > 0 )
+            {
+                return $repository->findOneBy( $selection );
+            }
+        }
+
+        return null;
+    }
+
+    public function findKeyEntries(ServiceEntityRepository $repository, object $uploadLine)
+    {
+        if ( count( $this->keyFields ) > 0 ) {
+            $selection = $this->getKeyEntrySelection($uploadLine);
+
+            if ( count( $selection ) > 0 )
+            {
+                return $repository->findBy( $selection );
+            }
+        }
+
+        return null;
+    }
+
+    private function getKeyEntrySelection(object $uploadLine)
+    {
+        $selection = array();
+
+        foreach ( $this->keyFields as $keyField ) {
+            $targetField = "";
+            $targetValue = "";
+
+            // find target field
+            if ( isset( $this->map[$keyField] ) ) {
+                $targetField = $this->map[$keyField];
+            }
+
+            // load value from uploaded data
+            try {
+                $targetValue = $this->accessor->getValue($uploadLine, $keyField);
+            } catch (\Exception $e) {}
+
+            if ( $targetField != "" && $targetValue != "" ) {
+                $selection[lcfirst($targetField)] = $targetValue;
+            }
+        }
+
+        return $selection;
+    }
 }

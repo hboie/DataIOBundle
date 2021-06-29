@@ -2,7 +2,7 @@
 
 namespace Hboie\DataIOBundle\Validation;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Hboie\DataIOBundle\Validation\DataValidator;
 use Exception;
@@ -12,7 +12,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 class DatabaseLookup
 {
     /**
-     * @var ObjectManager $entityManager
+     * @var EntityManagerInterface $entityManager
      */
     private $entityManager;
 
@@ -51,7 +51,7 @@ class DatabaseLookup
      */
     private $pendingMapping;
 
-    public function __construct(ObjectManager $entityManager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
         $this->cond = array();

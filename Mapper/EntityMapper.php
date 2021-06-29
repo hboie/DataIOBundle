@@ -2,15 +2,15 @@
 
 namespace Hboie\DataIOBundle\Mapper;
 
-use Doctrine\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class EntityMapper
 {
     /**
-     * @var ObjectManager
+     * @var EntityManagerInterface
      */
-    private $entity_manager;
+    private $entityManager;
 
     /**
      * @var PropertyAccess $accessor
@@ -20,29 +20,35 @@ class EntityMapper
     /**
      * @var array
      */
-    private $col_map;
+    private $colMap;
 
     /**
      * @var array
      */
-    private $default_values;
+    private $defaultValues;
 
     /**
      * @var array
      */
-    private $mandatory_fields;
+    private $factors;
+
+    /**
+     * @var array
+     */
+    private $mandatoryFields;
 
     /**
      * @var mixed
      */
     private $object;
 
-    public function __construct(ObjectManager $entity_manager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->entity_manager = $entity_manager;
-        $this->col_map = array();
-        $this->default_values = array();
-        $this->mandatory_fields = array();
+        $this->entityManager = $entityManager;
+        $this->colMap = array();
+        $this->defaultValues = array();
+        $this->mandatoryFields = array();
+        $this->factors = array();
 
         $this->accessor = PropertyAccess::createPropertyAccessor();
     }
@@ -54,30 +60,40 @@ class EntityMapper
     {
         $xml = new \SimpleXmlElement(file_get_contents($filename));
         foreach ($xml->field as $field) {
-            $field_attrib = $field->attributes();
-            if(isset($field_attrib['name']))
+            $fieldAttrib = $field->attributes();
+            if(isset($fieldAttrib['name']))
             {
-                $field_name = (string)$field_attrib['name'];
+                $fieldName = (string)$fieldAttrib['name'];
 
-                if(isset($field_attrib['mandatory'])) {
-                    if($field_attrib['mandatory'] == 'true') {
-                        array_push($this->mandatory_fields, $field_name);
+                if(isset($fieldAttrib['mandatory'])) {
+                    if($fieldAttrib['mandatory'] == 'true') {
+                        array_push($this->mandatoryFields, $fieldName);
                     }
                 }
 
                 foreach($field->children() as $child) {
                     /** @var \SimpleXMLElement $child */
-                    if($child->getName() == 'column') {
-                        $column_attrib = $child->attributes();
-                        if(isset($column_attrib['name'])) {
-                            $column_name = (string)$column_attrib['name'];
-                            $this->col_map[strtolower($column_name)] = $field_name;
+                    $childName = $child->getName();
+
+                    if($childName == 'column') {
+                        $columnAttrib = $child->attributes();
+                        if(isset($columnAttrib['name'])) {
+                            $columnName = (string)$columnAttrib['name'];
+                            $this->colMap[strtolower($columnName)] = $fieldName;
                         }
-                    } else if($child->getName() == 'default') {
-                        $column_attrib = $child->attributes();
-                        if(isset($column_attrib['value'])) {
-                            $default_value = (string)$column_attrib['value'];
-                            $this->default_values[$field_name] = $default_value;
+                    } else if($childName == 'default') {
+                        $columnAttrib = $child->attributes();
+                        if(isset($columnAttrib['value'])) {
+                            $defaultValue = (string)$columnAttrib['value'];
+                            $this->defaultValues[$fieldName] = $defaultValue;
+                        }
+                    } else if($childName == 'factor') {
+                        $columnAttrib = $child->attributes();
+                        if(isset($columnAttrib['value'])) {
+                            $factorValue = (string)$columnAttrib['value'];
+                            try {
+                                $this->factors[$fieldName] = floatval($factorValue);
+                            } catch (\Exception $e) {}
                         }
                     }
                 }
@@ -90,18 +106,24 @@ class EntityMapper
      * @param string $value
      * @return bool
      */
-    public function insertValue($column_name, $value)
+    public function insertValue($columnName, $value)
     {
-        $key = strtolower($column_name);
+        $key = strtolower($columnName);
 
-        if(!isset($this->col_map[$key])) {
+        if(!isset($this->colMap[$key])) {
             return false;
         }
 
-        $var_name = $this->col_map[$key];
+        $varName = $this->colMap[$key];
+
+        if ( isset($this->factors[$varName]) ) {
+            try {
+                $value = floatval($value) * $this->factors[$varName];
+            } catch (\Exception $e) {}
+        }
 
         try {
-            $this->accessor->setValue($this->object, $var_name, $value);
+            $this->accessor->setValue($this->object, $varName, $value);
         } catch (\Exception $e) {
             return false;
         }
@@ -116,14 +138,14 @@ class EntityMapper
 
     public function insertValues($row)
     {
-        $value_inserted = false;
-        foreach ($row as $col_name => $value) {
-            if($this->insertValue($col_name, $value)) {
-                $value_inserted = true;
+        $valueInserted = false;
+        foreach ($row as $colName => $value) {
+            if($this->insertValue($colName, $value)) {
+                $valueInserted = true;
             }
         }
 
-        return $value_inserted;
+        return $valueInserted;
     }
 
     /**
@@ -132,31 +154,31 @@ class EntityMapper
 
     public function insertDefaultValues()
     {
-        $values_inserted = true;
-        foreach ( $this->default_values as $var_name => $value ) {
+        $valuesInserted = true;
+        foreach ( $this->defaultValues as $varName => $value ) {
             try {
-                $this->accessor->setValue($this->object, $var_name, $value);
+                $this->accessor->setValue($this->object, $varName, $value);
             } catch (\Exception $e) {
-                $values_inserted = false;
+                $valuesInserted = false;
             }
         }
 
-        return $values_inserted;
+        return $valuesInserted;
     }
 
     public function flush()
     {
-        $this->entity_manager->persist($this->object);
-        $this->entity_manager->flush();
+        $this->entityManager->persist($this->object);
+        $this->entityManager->flush();
     }
 
     /**
      * @param array $fields_array
      * @return bool
      */
-    public function containsMandatoryFields($fields_array)
+    public function containsMandatoryFields($fieldsArray)
     {
-        $diff = array_diff($this->mandatory_fields, $fields_array);
+        $diff = array_diff($this->mandatoryFields, $fieldsArray);
 
         if(count($diff) == 0) {
             return true;
@@ -178,7 +200,7 @@ class EntityMapper
      */
     public function getMandatoryFields()
     {
-        return $this->mandatory_fields;
+        return $this->mandatoryFields;
     }
 
     /**
@@ -187,9 +209,9 @@ class EntityMapper
     public function getMandatoryColumns()
     {
         $ret = array();
-        foreach ($this->col_map as $col_name => $field_name) {
-            if(in_array($field_name, $this->mandatory_fields)) {
-                $ret[] = $col_name;
+        foreach ($this->colMap as $colName => $fieldName) {
+            if(in_array($fieldName, $this->mandatoryFields)) {
+                $ret[] = $colName;
             }
         }
         
@@ -200,9 +222,9 @@ class EntityMapper
      * @param array $fields_array
      * @return bool
      */
-    public function containsMandatoryColumns($columns_array)
+    public function containsMandatoryColumns($columnsArray)
     {
-        $diff = array_diff($this->getMandatoryColumns(), $columns_array);
+        $diff = array_diff($this->getMandatoryColumns(), $columnsArray);
 
         if(count($diff) == 0) {
             return true;
@@ -216,7 +238,7 @@ class EntityMapper
      */
     public function getMap()
     {
-        return $this->col_map;
+        return $this->colMap;
     }
 
     /**
@@ -224,6 +246,6 @@ class EntityMapper
      */
     public  function getDefaultValues()
     {
-        return $this->default_values;
+        return $this->defaultValues;
     }
 }
