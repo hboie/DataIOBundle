@@ -138,7 +138,7 @@ abstract class DataFieldValidator
 
     /**
      * @param string $key
-     * @param mixed $object
+     * @param mixed $value
      *
      * @return ValidationResult
      */
