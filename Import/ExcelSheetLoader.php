@@ -6,7 +6,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\RowIterator;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 
-class ExcelSheetLoader
+class ExcelSheetLoader implements DataIOLoaderInterface
 {
     /**
      * @var Worksheet

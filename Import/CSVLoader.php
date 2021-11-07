@@ -2,7 +2,7 @@
 
 namespace Hboie\DataIOBundle\Import;
 
-class CSVLoader
+class CSVLoader implements DataIOLoaderInterface
 {
     /**
      * @var resource
@@ -205,6 +205,4 @@ class CSVLoader
     {
         $this->toEncoding = $toEncoding;
     }
-
-
 }
